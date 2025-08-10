@@ -8,7 +8,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import DeclarativeBase
 
 
-engine = create_engine("postgresql+psycopg2://citizix_user:S3cret@localhost:5432/citizix_db")
+engine = create_engine("postgresql+psycopg2://citizix_user:S3cret@localhost:5432/postgres")
 
 
 class Base(DeclarativeBase):
@@ -19,6 +19,7 @@ class Event(Base):
     __tablename__ = "event"
 
     id = sa.Column(sa.Integer(), autoincrement=True, primary_key=True)
+    sheet_id = sa.Column(sa.String(), unique=True)
     place = sa.Column(sa.String())
     date = sa.Column(sa.DateTime())
 
