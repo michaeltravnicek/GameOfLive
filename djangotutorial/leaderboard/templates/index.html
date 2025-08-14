@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Table Page</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          background: #f4f4f4;
+          padding: 2rem;
+        }
+        .container {
+          position: relative;
+          top: 70px;
+          max-width: 800px;
+          margin: auto;
+          background: white;
+          padding: 2rem;
+          border-radius: 10px;
+          box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 20px;
+        }
+        th, td {
+          border: 1px solid #ccc;
+          padding: 10px;
+          text-align: center;
+        }
+        th {
+          background: #0077cc;
+          color: white;
+        }
+        tr:nth-child(even) {
+          background: #f9f9f9;
+        }
+        h1 {
+          text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <h1>Leaderboard</h1>
+    <table>
+        <tr>
+            <th>Umístění</th>
+            <th>Uživatel</th>
+            <th>Celkové body</th>
+        </tr>
+        {% for user in leaderboard %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.total_points }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+</body>
+</html>
