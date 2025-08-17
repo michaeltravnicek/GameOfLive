@@ -83,17 +83,23 @@ def main():
         sheet_id = sheet_info["id"]
 
         service_sheets = build("sheets", "v4", credentials=creds)
-        sheet = service_sheets.spreadsheets()
-
-        result = sheet.values().get(
-            spreadsheetId=sheet_id,
-            range=1  # Zautomatizovat podle potřeby
+        spreadsheet = service_sheets.spreadsheets().get(
+            spreadsheetId=sheet_id
         ).execute()
 
-        handle_attendance(sheet_id, result.get("values", []))
+        for sheet_meta in spreadsheet.get("sheets", []):
+            title = sheet_meta["properties"]["title"]
+            print(f"Processing sheet: {title}")
+
+            result = service_sheets.spreadsheets().values().get(
+                spreadsheetId=sheet_id,
+                range=title
+            ).execute()
+
+            handle_attendance(sheet_id, result.get("values", []))
 
 
-@background(schedule=300)
+@background(schedule=60)
 def run_google_sheet_sync():
     main()
-    #run_google_sheet_sync(repeat=300)
+    #run_google_sheet_sync()
