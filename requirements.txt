@@ -1,6 +1,9 @@
 google-api-python-client
 sqlalchemy
 psycopg2
-fastapi
-django-background-tasks
 django
+django-background-tasks
+dj-database-url
+whitenoise[brotli]
+gunicorn 
+uvicorn

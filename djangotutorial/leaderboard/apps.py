@@ -1,5 +1,5 @@
 from django.apps import AppConfig
-from background_task.models import Task
+
 
 class LeaderboardConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
@@ -7,5 +7,6 @@ class LeaderboardConfig(AppConfig):
     
     def ready(self):
         from .tasks import run_google_sheet_sync
+        from background_task.models import Task
         if not Task.objects.filter(task_name="leaderboard.tasks.run_google_sheet_sync").exists():
             run_google_sheet_sync(repeat=60)
