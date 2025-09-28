@@ -168,16 +168,17 @@ h1 {
     padding: 40px;
     margin-top: 80px; /* odsazení od menu */
 }
-
 .events-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 30px;
     justify-content: center;
-    align-items: stretch;
+    align-items: stretch; /* stejná výška karet v řádku */
 }
 
 .event-card {
+    display: flex;
+    flex-direction: column; /* sloupce uvnitř karty */
     flex: 0 1 calc(33% - 30px);
     box-sizing: border-box;
     background: white;
@@ -209,7 +210,17 @@ h1 {
 .event-card p {
     margin: 5px 0;
     line-height: 1.4;
+}
+
+/* Popis akce se roztáhne */
+.event-card .description {
+    flex-grow: 1;
+}
+
+/* Datum a stav akce zarovnáme dolů */
+.event-footer {
     margin-top: auto;
+    text-align: center;
 }
 
 .event-date {
@@ -218,17 +229,15 @@ h1 {
     margin-top: 10px;
 }
 
-
-
 .event-past {
-    color: #aa5555;          /* tlumená červená */
+    color: #aa5555; /* tlumená červená */
     font-weight: 600;
     font-size: 0.9em;
     text-align: center;
     margin: 8px 0;
     text-transform: uppercase;
-    letter-spacing: 1px;     /* trochu vzduchu mezi písmeny */
-    opacity: 0.8;            /* méně výrazné */
+    letter-spacing: 1px;
+    opacity: 0.8;
 }
 
 

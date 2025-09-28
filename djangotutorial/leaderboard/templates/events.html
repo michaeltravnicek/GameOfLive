@@ -12,15 +12,17 @@
 
         <h2>{{ event.name }}</h2>
 
-        <p>{{ event.description }}</p>
-        <p class="event-date">{{ event.date|date:"d.m.Y" }}</p>
-    
-        {% if event.is_past %}
-            <p class="event-past">JIŽ PROBĚHLY</p>
-        {% endif %}
+        <p class="description">{{ event.description }}</p>
+
+        <div class="event-footer">
+            <p class="event-date">{{ event.date|date:"d.m.Y" }}</p>
+
+            {% if event.is_past %}
+                <p class="event-past">JIŽ PROBĚHLA</p>
+            {% endif %}
+        </div>
     </div>
     {% endfor %}
 </div>
-
-
 {% endblock %}
+
