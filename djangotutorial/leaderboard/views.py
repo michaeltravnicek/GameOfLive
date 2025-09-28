@@ -73,11 +73,12 @@ def events_view(request):
     today = timezone.now().date()
 
     for event in events:
-        if hasattr(event, "date") and event.date:  # pojistka proti null
+        if hasattr(event, "date") and event.date: 
             event.is_past = event.date.date() < today
         else:
             event.is_past = False
 
+    events = sorted(events, key=lambda e: e.date, reverse=True)
     return render(request, "events.html", {"events": events})
 
 

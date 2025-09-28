@@ -68,3 +68,45 @@ function loadLeaderboard() {
         location.reload(); 
     }, 100);
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    const modal = document.getElementById("event-modal");
+    const modalImage = document.getElementById("modal-image");
+    const modalName = document.getElementById("modal-name");
+    const modalDescription = document.getElementById("modal-description");
+    const modalDate = document.getElementById("modal-date");
+    const closeBtn = document.querySelector(".close");
+
+    document.querySelectorAll(".event-card").forEach(card => {
+        card.addEventListener("click", function() {
+            const img = card.querySelector("img");
+            const name = card.querySelector("h2").innerText;
+            const description = card.querySelector(".description").innerText;
+            const date = card.querySelector(".event-date").innerText;
+
+            if (img) {
+                modalImage.src = img.src;
+                modalImage.style.display = "block";
+            } else {
+                modalImage.src = "";
+                modalImage.style.display = "none";
+            }
+
+            modalName.innerText = name;
+            modalDescription.innerText = description;
+            modalDate.innerText = date;
+
+            modal.classList.add("show");
+        });
+    });
+
+    closeBtn.addEventListener("click", function() {
+        modal.classList.remove("show");
+    });
+
+    window.addEventListener("click", function(event) {
+        if (event.target === modal) {
+            modal.classList.remove("show");
+        }
+    });
+});

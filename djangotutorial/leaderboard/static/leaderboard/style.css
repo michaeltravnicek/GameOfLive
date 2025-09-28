@@ -18,7 +18,7 @@ body {
 
 .menu-shadow {
     position: absolute;
-    top: 5px; /* posun stínu */
+    top: 5px;
     left: 0;
     width: 100%;
     height: 100%;
@@ -43,19 +43,19 @@ body {
 
 
 .menu-item a {
-    text-decoration: none;    /* odstraní podtržení */
-    color: inherit;           /* použije barvu rodiče */
-    display: inline-block;    /* aby padding fungoval správně */
-    padding: 10px 20px;       /* prostor kolem textu */
+    text-decoration: none; 
+    color: inherit; 
+    display: inline-block;  
+    padding: 10px 20px;   
 }
 
 .menu-item a:hover {
-    background: #003366; /* ještě tmavší pro hover */
+    background: #003366;
     color: white;
 }
 
 .menu-item a.active {
-    background: #002244; /* tmavá barva pro vybranou položku */
+    background: #002244;
     color: white;
 }
 
@@ -105,7 +105,7 @@ h1 {
     cursor: pointer;
 }
 .clickable-row:hover {
-    background-color: #f0f0f0; /* jemné zvýraznění */
+    background-color: #f0f0f0;
 }
 
 .user-header {
@@ -123,7 +123,7 @@ h1 {
 }
 
 .back-button {
-    background-color: #e0e0e0; /* světle šedá */
+    background-color: #e0e0e0;
     border: none;
     padding: 8px 16px;
     border-radius: 10px;
@@ -135,7 +135,7 @@ h1 {
 }
 
 .back-button:hover {
-    background-color: #d0d0d0; /* tmavší šedá při hoveru */
+    background-color: #d0d0d0;
 }
 
 .fade-out {
@@ -166,19 +166,21 @@ h1 {
 
 #events-container {
     padding: 40px;
-    margin-top: 80px; /* odsazení od menu */
+    margin-top: 80px;
 }
+
 .events-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 30px;
     justify-content: center;
-    align-items: stretch; /* stejná výška karet v řádku */
+    align-items: stretch;
 }
 
 .event-card {
     display: flex;
-    flex-direction: column; /* sloupce uvnitř karty */
+    flex-direction: column;
+    justify-content: flex-start;
     flex: 0 1 calc(33% - 30px);
     box-sizing: border-box;
     background: white;
@@ -187,6 +189,11 @@ h1 {
     overflow: hidden;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     padding: 15px;
+}
+
+.event-footer {
+    margin-top: auto; 
+    text-align: center;
 }
 
 .event-card:hover {
@@ -210,15 +217,6 @@ h1 {
 .event-card p {
     margin: 5px 0;
     line-height: 1.4;
-}
-
-/* Popis akce se roztáhne */
-.event-card .description {
-    flex-grow: 1;
-}
-
-/* Datum a stav akce zarovnáme dolů */
-.event-footer {
     margin-top: auto;
     text-align: center;
 }
@@ -230,17 +228,15 @@ h1 {
 }
 
 .event-past {
-    color: #aa5555; /* tlumená červená */
+    color: #aa5555;          
     font-weight: 600;
     font-size: 0.9em;
     text-align: center;
     margin: 8px 0;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    opacity: 0.8;
+    letter-spacing: 1px;     
+    opacity: 0.8;      
 }
-
-
 
 /* ANIMATION */
 @keyframes fadeInUp {
@@ -248,4 +244,84 @@ h1 {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+
+.modal {
+    display: none; 
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    justify-content: center;
+    align-items: center;
+    animation: fadeOut 0.3s forwards;
+}
+
+.modal.show {
+    display: flex;
+    animation: fadeIn 0.3s forwards;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 90%;
+    transform: scale(0.8);
+    opacity: 0;
+    animation: zoomOut 0.3s forwards;
+}
+
+.modal.show .modal-content {
+    animation: zoomIn 0.3s forwards;
+}
+
+/* Animace */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes zoomOut {
+    from { transform: scale(1); opacity: 1; }
+    to { transform: scale(0.8); opacity: 0; }
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #333;
+    transition: transform 0.2s;
+}
+
+.close:hover {
+    transform: rotate(90deg);
+    color: #e74c3c;
+}
+
+.modal-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
 }
