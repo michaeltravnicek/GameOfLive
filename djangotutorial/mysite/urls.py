@@ -18,8 +18,13 @@ from django.contrib import admin
 from django.urls import path
 
 from leaderboard import views
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.home_view, name='home')
-]
+    path("", views.home_view, name="home"),
+    path("leaderboard/", views.leaderboard_view, name="leaderboard"),
+    path("events/", views.events_view, name="events"),
+    path("user/<int:user_id>/", views.user_detail_view, name="user-detail"),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

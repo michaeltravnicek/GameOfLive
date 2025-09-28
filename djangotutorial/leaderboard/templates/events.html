@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Events{% endblock %}
+
+{% block content %}
+<div class="events-grid">
+    {% for event in events %}
+    <div class="event-card">
+        {% if event.image %}
+            <img src="{{ event.image.url }}" alt="{{ event.name }}">
+        {% endif %}
+
+        <h2>{{ event.name }}</h2>
+
+        <p>{{ event.description }}</p>
+        <p class="event-date">{{ event.date|date:"d.m.Y" }}</p>
+    
+        {% if event.is_past %}
+            <p class="event-past">JIŽ PROBĚHLY</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+
+{% endblock %}

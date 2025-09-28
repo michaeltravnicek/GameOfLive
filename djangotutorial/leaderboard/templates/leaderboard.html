@@ -1,0 +1,30 @@
+<!-- leaderboard/templates/leaderboard/index.html -->
+{% extends "base.html" %}
+
+{% block title %}Leaderboard {% endblock %}
+
+{% block content %}
+<div class="container" id="leaderboard">
+    <h1>Leaderboard</h1>
+    
+    <table>
+        <colgroup>
+            <col style="width: 20%;">
+            <col style="width: auto;">
+            <col style="width: 20%;">
+        </colgroup>
+        <tr>
+            <th>Umístění</th>
+            <th>Uživatel</th>
+            <th>Celkové body</th>
+        </tr>
+        {% for user in leaderboard %}
+        <tr onclick="loadUser({{ user.id }})" class="clickable-row" style="animation-delay: {{ forloop.counter0|add:'0.1' }}s">
+            <td>{{ user.rank }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.total_points }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
