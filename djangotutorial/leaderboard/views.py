@@ -3,7 +3,7 @@ from django.http import HttpResponse, JsonResponse
 from .models import User, UserToEvent, Event, ImageToEvent
 from django.db.models import Count, Sum
 from django.utils import timezone
-from .tasks import main
+from .tasks import main, RUN_ALL
 from datetime import datetime, timedelta
 from django.db.models import F
 
@@ -16,7 +16,11 @@ def home_view(request):
 
 def leaderboard_view(request):
     global LAST_UPDATE
+    global RUN_ALL
 
+    now = datetime.now()
+
+    RUN_ALL = now.hour < LAST_UPDATE.hour if LAST_UPDATE is not None else True
     if LAST_UPDATE is None or datetime.now() - LAST_UPDATE > timedelta(minutes=10):
         main()
         LAST_UPDATE = datetime.now()
@@ -71,8 +75,6 @@ def user_detail_view(request, user_id):
         "actions": list(actions)
     }
     return JsonResponse(data)
-
-
 
 
 def events_view(request):

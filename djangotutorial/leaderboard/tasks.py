@@ -15,6 +15,8 @@ SCOPES = [
 ]
 SERVICE_ACCOUNT_FILE = 'credentials.json'
 
+RUN_ALL = False
+
 
 def parse_phone_number(raw_number: str) -> str:
     if not raw_number:
@@ -75,12 +77,23 @@ def insert_rec(event: Event, rec: tuple):
     user = handle_new_user(rec)
     if user is None:
         return
-    
-    if len(rec) > 3: # Cas, Telefon, Jmeno, ..., Body
+
+    if len(rec) > 3:  # Cas, Telefon, Jmeno, ..., Body
         points = rec[-1]
     else:
         points = event.points
-    UserToEvent.objects.get_or_create(user=user, event=event, points=points)
+
+    ute, created = UserToEvent.objects.get_or_create(
+        user=user,
+        event=event,
+        defaults={"points": points},
+    )
+
+    if not created and ute.points != points:
+        ute.points = points
+        ute.save(update_fields=["points"])
+
+
 
 
 def handle_attendance(sheet_id: str, sheet_list_id: str, records: list):
@@ -90,9 +103,12 @@ def handle_attendance(sheet_id: str, sheet_list_id: str, records: list):
         return
 
     existing_count = UserToEvent.objects.filter(event=event).count()
-    new_records = records[existing_count:] if existing_count < len(records) else []
-
-    for rec in new_records[1:]:
+    if RUN_ALL:
+        new_records = records[1:] 
+    else:
+        new_records = records[1+existing_count:] if existing_count < len(records) else []
+    
+    for rec in new_records:
         insert_rec(event, rec)
 
 
