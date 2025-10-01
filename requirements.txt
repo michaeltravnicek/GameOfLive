@@ -8,3 +8,4 @@ whitenoise[brotli]
 gunicorn
 dotenv 
 uvicorn
+pillow
