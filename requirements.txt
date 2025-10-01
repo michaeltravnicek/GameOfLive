@@ -1,9 +1,10 @@
 google-api-python-client
 sqlalchemy
 psycopg2
-django
 django-background-tasks
+django
 dj-database-url
 whitenoise[brotli]
-gunicorn 
+gunicorn
+dotenv 
 uvicorn
