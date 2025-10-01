@@ -8,3 +8,5 @@ cd djangotutorial
 python manage.py collectstatic --no-input
 
 python manage.py migrate
+
+python superuser.py
