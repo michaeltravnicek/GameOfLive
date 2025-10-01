@@ -21,10 +21,10 @@ function loadUser(userId) {
     content.classList.add("fade-out");
 
     setTimeout(() => {
-        fetch(`/user/${userId}/`)
+        fetch(`/api/user/${userId}/`)
             .then(response => response.json())
             .then(data => {
-                
+                console.log(data)
                 content.innerHTML = `
                     <div class="user-header">
                         <button class="back-button" onclick="loadLeaderboard()">Back</button>
@@ -48,7 +48,7 @@ function loadUser(userId) {
                                 <td>${action.event__name}</td>
                                 <td>${action.event__place}</td>
                                 <td>${new Date(action.event__date).toLocaleDateString('cs-CZ')}</td>
-                                <td>${action.event__points}</td>
+                                <td>${action.user_points}</td>
                             </tr>
                         `).join('')}
                     </table>
@@ -71,28 +71,50 @@ function loadLeaderboard() {
 
 document.addEventListener("DOMContentLoaded", function() {
     const modal = document.getElementById("event-modal");
+    if (!modal) {
+        console.error("❌ #event-modal nebyl nalezen v DOM!");
+        return;
+    }
+
     const modalImage = document.getElementById("modal-image");
     const modalName = document.getElementById("modal-name");
+    const modalPlace = document.getElementById("modal-place");
     const modalDescription = document.getElementById("modal-description");
     const modalDate = document.getElementById("modal-date");
     const closeBtn = document.querySelector(".close");
 
-    document.querySelectorAll(".event-card").forEach(card => {
-        card.addEventListener("click", function() {
-            const img = card.querySelector("img");
-            const name = card.querySelector("h2").innerText;
-            const description = card.querySelector(".description").innerText;
-            const date = card.querySelector(".event-date").innerText;
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
 
-            if (img) {
-                modalImage.src = img.src;
-                modalImage.style.display = "block";
-            } else {
-                modalImage.src = "";
-                modalImage.style.display = "none";
+    let images = [];
+    let currentIndex = 0;
+
+    document.querySelectorAll(".event-card").forEach(card => {
+        card.addEventListener("click", async function() {
+            const name = card.querySelector("h2")?.innerText || "";
+            const place = card.querySelector(".event-place")?.innerText || "";
+            const description = card.querySelector(".description")?.innerText || "";
+            const date = card.querySelector(".event-date")?.innerText || "";
+            const eventId = card.dataset.eventId;
+
+            if (!eventId) {
+                console.error("❌ Chybí data-event-id na kartě!");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/events/${eventId}/images/`);
+                const data = await response.json();
+                images = data.images || [];
+
+                currentIndex = 0;
+                showImage(currentIndex);
+            } catch (e) {
+                console.error("❌ Nepodařilo se načíst obrázky:", e);
             }
 
             modalName.innerText = name;
+            if (modalPlace) modalPlace.innerText = place;
             modalDescription.innerText = description;
             modalDate.innerText = date;
 
@@ -100,7 +122,51 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    closeBtn.addEventListener("click", function() {
+    function showImage(index) {
+        if (images.length > 0) {
+            modalImage.src = images[index];
+            modalImage.style.display = "block";
+            if (index == 0) {
+                if (index + 1 == images.length) {
+                    prevBtn.classList.add("hidden");
+                    nextBtn.classList.add("hidden");
+                } else {
+                    prevBtn.classList.add("hidden")
+                    nextBtn.classList.remove("hidden")
+                }
+            } else if (index + 1 == images.length) {
+                console.log("dobry jinak?")
+                prevBtn.classList.remove("hidden");
+                nextBtn.classList.add("hidden");
+            } else {
+                prevBtn.classList.remove("hidden");
+                nextBtn.classList.remove("hidden");
+            }
+             
+        } else {
+            console.log("Co se deje kurva")
+            prevBtn.classList.add("hidden");
+            nextBtn.classList.add("hidden");
+            modalImage.src = "";
+            modalImage.style.display = "none";
+        }
+    }
+
+    prevBtn?.addEventListener("click", function() {
+        if (images.length > 0) {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            showImage(currentIndex);
+        }
+    });
+
+    nextBtn?.addEventListener("click", function() {
+        if (images.length > 0) {
+            currentIndex = (currentIndex + 1) % images.length;
+            showImage(currentIndex);
+        }
+    });
+
+    closeBtn?.addEventListener("click", function() {
         modal.classList.remove("show");
     });
 

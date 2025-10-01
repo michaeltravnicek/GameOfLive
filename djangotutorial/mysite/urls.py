@@ -26,5 +26,8 @@ urlpatterns = [
     path("", views.home_view, name="home"),
     path("leaderboard/", views.leaderboard_view, name="leaderboard"),
     path("events/", views.events_view, name="events"),
-    path("user/<int:user_id>/", views.user_detail_view, name="user-detail"),
+    
+    path("api/user/<int:user_id>/", views.user_detail_view, name="user-detail"),
+    path("api/events/<str:event_id>/images/", views.events_image_views, name="images")
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

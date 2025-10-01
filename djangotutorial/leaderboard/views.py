@@ -1,21 +1,36 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
-from .models import User, UserToEvent, Event
+from .models import User, UserToEvent, Event, ImageToEvent
 from django.db.models import Count, Sum
+from django.utils import timezone
+from .tasks import main
+from datetime import datetime, timedelta
+from django.db.models import F
+
+LAST_UPDATE = None
+
 
 def home_view(request):
     return render(request, "welcome.html", {})
 
 
 def leaderboard_view(request):
+    global LAST_UPDATE
+
+    if LAST_UPDATE is None or datetime.now() - LAST_UPDATE > timedelta(minutes=10):
+        main()
+        LAST_UPDATE = datetime.now()
+
+
     leaderboard = (
         User.objects
         .annotate(
             events_count=Count("usertoevent", distinct=True),
-            total_points=Sum("usertoevent__event__points")
+            total_points=Sum("usertoevent__points")
         )
         .order_by("-total_points")
     )
+
 
     leaderboard_list = list(leaderboard)
     previous_points = None
@@ -40,7 +55,14 @@ def user_detail_view(request, user_id):
         UserToEvent.objects
         .filter(user=user)
         .select_related("event")
-        .values("event__name", "event__description", "event__place", "event__date", "event__points")
+        .annotate(user_points=F("points"))
+        .values(
+            "event__name",
+            "event__description",
+            "event__place",
+            "event__date",
+            "user_points"
+        )
         .order_by("event__date")
     )
 
@@ -51,22 +73,7 @@ def user_detail_view(request, user_id):
     return JsonResponse(data)
 
 
-def events_view2(request):
-    events = Event.objects.values(
-        "id",
-        "name",
-        "description",
-        "place",
-        "date",
-        "points"
-    ).order_by("date")
 
-    data = {
-        "events": list(events)
-    }
-    return render(request, "events.html", {"events": data})
-
-from django.utils import timezone
 
 def events_view(request):
     events = Event.objects.all()
@@ -82,3 +89,16 @@ def events_view(request):
     return render(request, "events.html", {"events": events})
 
 
+def events_image_views(request, event_id: str):
+    event = get_object_or_404(Event, id=event_id)
+
+    images = [
+        request.build_absolute_uri(img.image.url)
+        for img in ImageToEvent.objects.filter(event_id=event)
+        if img.image
+    ]
+
+    return JsonResponse({
+        "event_id": event_id,
+        "images": images
+    })

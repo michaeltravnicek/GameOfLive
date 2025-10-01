@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-apk-d!f9%95l%z3&*^omgieg!z8bd$0+eu3kxiyp_ayjge3k@9'
-
+LAST_UPDATE = None
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"

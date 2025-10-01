@@ -1,3 +1,4 @@
+import re
 from background_task import background
 from datetime import datetime
 from google.oauth2 import service_account
@@ -15,26 +16,52 @@ SCOPES = [
 SERVICE_ACCOUNT_FILE = 'credentials.json'
 
 
-def insert_event(sheet: dict):
+def parse_phone_number(raw_number: str) -> str:
+    if not raw_number:
+        return None
+
+    clean_number = re.sub(r"\D", "", raw_number)
+    return clean_number
+    #if len(clean_number) == 9:
+    #    return clean_number
+    #else:
+    #    return None
+
+
+def insert_event(sheet_id: str, sheet: dict):
+    sheet_list_id = str(sheet["properties"]["sheetId"]) 
+    sheet_name = sheet["properties"]["title"]
+
     event, created = Event.objects.get_or_create(
-        sheet_id=sheet["id"],
-        points=50,
-        defaults={"place": "Brno", "date": datetime.now()}
+        sheet_id=sheet_id,
+        sheet_list_id=sheet_list_id,
+        defaults={
+            "name": sheet_name,
+            "points": 50,
+            "place": "Brno",
+            "date": datetime.now(),
+        }
     )
     return event
 
 
 def handle_events(sheets: dict):
-    for sheet in sheets.get("files", []):
+    for sheet in sheets.get("sheets", []):
+        print("insert: ", sheet["name"])
         insert_event(sheet)
 
 
-def handle_new_user(rec: tuple) -> User:
+def handle_new_user(rec: tuple) -> User | None:
     """
     rec[1] = number, rec[2] = name
     """
+    number = parse_phone_number(rec[1])
+    if number is None:
+        print("Invalid Number!")
+        return
+
     user, created = User.objects.get_or_create(
-        number=rec[1],
+        number=number,
         defaults={"name": rec[2]}
     )
     if not created:
@@ -46,12 +73,19 @@ def handle_new_user(rec: tuple) -> User:
 
 def insert_rec(event: Event, rec: tuple):
     user = handle_new_user(rec)
-    UserToEvent.objects.get_or_create(user=user, event=event)
+    if user is None:
+        return
+    
+    if len(rec) > 3: # Cas, Telefon, Jmeno, ..., Body
+        points = rec[-1]
+    else:
+        points = event.points
+    UserToEvent.objects.get_or_create(user=user, event=event, points=points)
 
 
-def handle_attendance(sheet_id: str, records: list):
+def handle_attendance(sheet_id: str, sheet_list_id: str, records: list):
     try:
-        event = Event.objects.get(sheet_id=sheet_id)
+        event = Event.objects.get(sheet_id=sheet_id, sheet_list_id=sheet_list_id)
     except Event.DoesNotExist:
         return
 
@@ -77,7 +111,6 @@ def main():
         fields="files(id, name)"
     ).execute()
 
-    handle_events(sheets)
 
     for sheet_info in sheets.get("files", []):
         sheet_id = sheet_info["id"]
@@ -87,16 +120,20 @@ def main():
             spreadsheetId=sheet_id
         ).execute()
 
+        #handle_events(sheet_info)
+
         for sheet_meta in spreadsheet.get("sheets", []):
             title = sheet_meta["properties"]["title"]
             print(f"Processing sheet: {title}")
-
+            insert_event(sheet_id, sheet_meta)
+            
             result = service_sheets.spreadsheets().values().get(
                 spreadsheetId=sheet_id,
                 range=title
             ).execute()
 
-            handle_attendance(sheet_id, result.get("values", []))
+            sheet_list_id = str(sheet_meta["properties"]["sheetId"]) 
+            handle_attendance(sheet_id, sheet_list_id, result.get("values", []))
 
 
 @background(schedule=60)
