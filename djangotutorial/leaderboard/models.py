@@ -12,7 +12,7 @@ class Event(models.Model):
     image = models.ImageField(upload_to="event_images/", blank=True, null=True)
 
     def __str__(self):
-        return f"{self.sheet_id} - {self.place}"
+        return f"{self.name} - {self.date} - {self.place} - {self.sheet_id}"
     
     class Meta:
         unique_together = ("sheet_id", "sheet_list_id")
@@ -41,3 +41,8 @@ class UserToEvent(models.Model):
 
     def __str__(self):
         return f"{self.user} → {self.event}"
+    
+    
+class LastUpdate(models.Model):
+    last_update = models.DateTimeField(auto_now=True)
+    last_complete_update = models.DateTimeField(blank=True, null=True) 

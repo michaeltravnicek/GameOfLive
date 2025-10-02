@@ -15,8 +15,6 @@ SCOPES = [
 ]
 SERVICE_ACCOUNT_FILE = '../credentials.json'
 
-RUN_ALL = False
-
 
 def parse_phone_number(raw_number: str) -> str:
     if not raw_number:
@@ -96,14 +94,14 @@ def insert_rec(event: Event, rec: tuple):
 
 
 
-def handle_attendance(sheet_id: str, sheet_list_id: str, records: list):
+def handle_attendance(sheet_id: str, sheet_list_id: str, records: list, run_all: bool):
     try:
         event = Event.objects.get(sheet_id=sheet_id, sheet_list_id=sheet_list_id)
     except Event.DoesNotExist:
         return
 
     existing_count = UserToEvent.objects.filter(event=event).count()
-    if cache.get("last_update"):
+    if run_all:
         new_records = records[1:] 
     else:
         new_records = records[1+existing_count:] if existing_count < len(records) else []
@@ -112,7 +110,7 @@ def handle_attendance(sheet_id: str, sheet_list_id: str, records: list):
         insert_rec(event, rec)
 
 
-def main():
+def main(run_all: bool):
     print("Running")
     creds = service_account.Credentials.from_service_account_file(
         SERVICE_ACCOUNT_FILE, scopes=SCOPES
@@ -149,7 +147,7 @@ def main():
             ).execute()
 
             sheet_list_id = str(sheet_meta["properties"]["sheetId"]) 
-            handle_attendance(sheet_id, sheet_list_id, result.get("values", []))
+            handle_attendance(sheet_id, sheet_list_id, result.get("values", []), run_all)
 
 
 @background(schedule=60)

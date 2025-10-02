@@ -1,28 +1,36 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
-from .models import User, UserToEvent, Event, ImageToEvent
+from .models import User, UserToEvent, Event, ImageToEvent, LastUpdate
 from django.db.models import Count, Sum
 from django.utils import timezone
-from .tasks import main, RUN_ALL
-from datetime import datetime, timedelta
+from .tasks import main
+from datetime import datetime, timedelta, timezone as dt_timezone
 from django.db.models import F
-from django.core.cache import cache
-
+from django.utils import timezone
 
 def home_view(request):
     return render(request, "welcome.html", {})
 
 
 def leaderboard_view(request):
-    last_update = cache.get("last_update")
-    print("Leaderboard function")
-    now = datetime.now()
+    last_update_obj = LastUpdate.objects.all().first()
+    if last_update_obj is None:
+        last_update_obj = LastUpdate.objects.create(
+            last_update=datetime.fromtimestamp(0, tz=dt_timezone.utc),  # time -> runs update
+            last_complete_update=None
+        )
 
-    run_all = now.hour < last_update.hour if last_update else True
-    cache.set("run_all", run_all, timeout=600)
-    if last_update is None or datetime.now() - last_update > timedelta(minutes=10):
-        main()
-        cache.set("last_update", datetime.now(), timeout=60000 )
+    print("Leaderboard function")
+    now = timezone.now() 
+
+    run_all = now.hour < last_update_obj.last_update.hour or last_update_obj.last_complete_update is None
+    if now - last_update_obj.last_update > timedelta(minutes=10):
+        main(run_all)
+        last_update_obj.last_update = now
+        if run_all:
+            last_update_obj.last_complete_update = now
+
+        last_update_obj.save()
 
     leaderboard = (
         User.objects
