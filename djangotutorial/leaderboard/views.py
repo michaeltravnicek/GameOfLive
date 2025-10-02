@@ -6,8 +6,7 @@ from django.utils import timezone
 from .tasks import main, RUN_ALL
 from datetime import datetime, timedelta
 from django.db.models import F
-
-LAST_UPDATE = None
+from django.core.cache import cache
 
 
 def home_view(request):
@@ -15,18 +14,16 @@ def home_view(request):
 
 
 def leaderboard_view(request):
-    global LAST_UPDATE
-    global RUN_ALL
-    print("GOT ON THE START")
+    last_update = cache.get("last_update")
+    print("Leaderboard function")
     now = datetime.now()
 
-    RUN_ALL = now.hour < LAST_UPDATE.hour if LAST_UPDATE is not None else True
-    if LAST_UPDATE is None or datetime.now() - LAST_UPDATE > timedelta(minutes=10):
-        print("RUN THE START")
+    run_all = now.hour < last_update.hour if last_update else True
+    cache.set("run_all", run_all, timeout=600)
+    if last_update is None or datetime.now() - last_update > timedelta(minutes=10):
         main()
-        LAST_UPDATE = datetime.now()
+        cache.set("last_update", datetime.now(), timeout=60000 )
 
-    print("PRINT USERS")
     leaderboard = (
         User.objects
         .annotate(
@@ -49,7 +46,6 @@ def leaderboard_view(request):
             user.rank = rank
             previous_points = user.total_points
 
-    print("SENDING RESPONSE")
     return render(request, "leaderboard.html", {"leaderboard": leaderboard_list})
 
 

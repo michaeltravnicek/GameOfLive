@@ -5,7 +5,7 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
 from leaderboard.models import Event, User, UserToEvent  # import modelů
-
+from django.core.cache import cache
 
 from leaderboard.models import Event, User, UserToEvent
 
@@ -103,7 +103,7 @@ def handle_attendance(sheet_id: str, sheet_list_id: str, records: list):
         return
 
     existing_count = UserToEvent.objects.filter(event=event).count()
-    if RUN_ALL:
+    if cache.get("last_update"):
         new_records = records[1:] 
     else:
         new_records = records[1+existing_count:] if existing_count < len(records) else []
