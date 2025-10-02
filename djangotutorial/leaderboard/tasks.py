@@ -13,7 +13,7 @@ SCOPES = [
     'https://www.googleapis.com/auth/drive.metadata.readonly',
     'https://www.googleapis.com/auth/spreadsheets.readonly'
 ]
-SERVICE_ACCOUNT_FILE = 'credentials.json'
+SERVICE_ACCOUNT_FILE = '../credentials.json'
 
 RUN_ALL = False
 
