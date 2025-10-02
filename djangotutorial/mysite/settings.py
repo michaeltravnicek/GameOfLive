@@ -22,7 +22,7 @@ MODE = os.getenv("MODE")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # I generated a new one:))
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", 'django-insecure-apk-d!f9%95l%z3&*^omgieg!z8bd$0+eu3kxiyp_ayjge3k@9')
 LAST_UPDATE = None
 
 STATIC_URL = '/static/'
