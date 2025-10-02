@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Event, UserToEvent, ImageToEvent
+from .models import Event, UserToEvent, ImageToEvent, User
 
 
 @admin.register(Event)
@@ -13,6 +13,9 @@ class ImageToEvent(admin.ModelAdmin):
     list_display = ("event_id", "image")
     search_fields = ("event_id",)
 
+@admin.register(User)
+class UserToAdmin(admin.ModelAdmin):
+    list_display = ("number", "name")
 
 @admin.register(UserToEvent)
 class UserToEventAdmin(admin.ModelAdmin):

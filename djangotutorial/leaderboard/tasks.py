@@ -21,11 +21,7 @@ def parse_phone_number(raw_number: str) -> str:
         return None
 
     clean_number = re.sub(r"\D", "", raw_number)
-    return clean_number
-    #if len(clean_number) == 9:
-    #    return clean_number
-    #else:
-    #    return None
+    return clean_number if len(clean_number) == 9 else None
 
 
 def insert_event(sheet_id: str, sheet: dict):
@@ -71,13 +67,13 @@ def handle_new_user(rec: tuple) -> User | None:
     return user
 
 
-def insert_rec(event: Event, rec: tuple):
+def insert_rec(event: Event, rec: tuple, points_index: int | None):
     user = handle_new_user(rec)
     if user is None:
         return
 
-    if len(rec) > 3:  # Cas, Telefon, Jmeno, ..., Body
-        points = rec[-1]
+    if points_index is not None:
+        points = rec[points_index]
     else:
         points = event.points
 
@@ -92,22 +88,26 @@ def insert_rec(event: Event, rec: tuple):
         ute.save(update_fields=["points"])
 
 
-
-
-def handle_attendance(sheet_id: str, sheet_list_id: str, records: list, run_all: bool):
+def handle_attendance(sheet_id: str, sheet_list_id: str, records: list[tuple[str]], run_all: bool):
     try:
         event = Event.objects.get(sheet_id=sheet_id, sheet_list_id=sheet_list_id)
     except Event.DoesNotExist:
         return
 
     existing_count = UserToEvent.objects.filter(event=event).count()
+    index = None
+    for i, meta in enumerate(records[0]):
+        if meta.lower() == "body":
+            index = i
+                
     if run_all:
         new_records = records[1:] 
     else:
         new_records = records[1+existing_count:] if existing_count < len(records) else []
     
+
     for rec in new_records:
-        insert_rec(event, rec)
+        insert_rec(event, rec, index)
 
 
 def main(run_all: bool):
