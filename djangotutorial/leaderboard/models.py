@@ -5,7 +5,7 @@ class Event(models.Model):
     sheet_id = models.CharField(max_length=255)
     sheet_list_id = models.CharField(max_length=255)
     name = models.CharField(max_length=255, default="Akce")
-    description = models.CharField(default="")
+    description = models.CharField(max_length=1023, default="")
     place = models.CharField(max_length=255)
     date = models.DateTimeField()
     points = models.IntegerField()
