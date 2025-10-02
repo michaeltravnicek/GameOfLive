@@ -17,15 +17,16 @@ def home_view(request):
 def leaderboard_view(request):
     global LAST_UPDATE
     global RUN_ALL
-
+    print("GOT ON THE START")
     now = datetime.now()
 
     RUN_ALL = now.hour < LAST_UPDATE.hour if LAST_UPDATE is not None else True
     if LAST_UPDATE is None or datetime.now() - LAST_UPDATE > timedelta(minutes=10):
+        print("RUN THE START")
         main()
         LAST_UPDATE = datetime.now()
 
-
+    print("PRINT USERS")
     leaderboard = (
         User.objects
         .annotate(
@@ -48,6 +49,7 @@ def leaderboard_view(request):
             user.rank = rank
             previous_points = user.total_points
 
+    print("SENDING RESPONSE")
     return render(request, "leaderboard.html", {"leaderboard": leaderboard_list})
 
 
