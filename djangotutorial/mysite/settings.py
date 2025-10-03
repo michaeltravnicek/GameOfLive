@@ -32,8 +32,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     BASE_DIR / "leaderboard" / "static",
 ]
-MEDIA_URL = os.getenv("MEDIA", "media")
-MEDIA_ROOT = BASE_DIR / os.getenv("MEDIA", "media")
+MEDIA_URL = os.getenv("MEDIA_URL", "/media/")
+MEDIA_ROOT = os.getenv("MEDIA_ROOT", BASE_DIR / "media")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if MODE == "PRODUCTION" else False
