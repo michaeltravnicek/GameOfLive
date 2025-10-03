@@ -7,8 +7,11 @@ from .tasks import main
 from datetime import datetime, timedelta, timezone as dt_timezone
 from django.db.models import F
 from django.utils import timezone
+from django.conf import settings
 
 def home_view(request):
+    print(settings.MEDIA_ROOT)
+    print(settings.MEDIA_URL)
     return render(request, "welcome.html", {})
 
 
