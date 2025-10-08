@@ -14,51 +14,61 @@ def home_view(request):
     print(settings.MEDIA_URL)
     return render(request, "welcome.html", {})
 
+from django.core.cache import cache
+from datetime import timedelta
+
+CACHE_KEY = "leaderboard_data"
+CACHE_TTL = 10 * 60
+
 
 def leaderboard_view(request):
-    last_update_obj = LastUpdate.objects.all().first()
-    if last_update_obj is None:
-        last_update_obj = LastUpdate.objects.create(
-            last_update=datetime.fromtimestamp(0, tz=dt_timezone.utc),  # time -> runs update
-            last_complete_update=None
+    leaderboard_list = cache.get(CACHE_KEY)
+
+    if leaderboard_list is None:
+        print("Cache miss")
+        last_update_obj = LastUpdate.objects.all().first()
+        if last_update_obj is None:
+            last_update_obj = LastUpdate.objects.create(
+                last_update=datetime.fromtimestamp(0, tz=dt_timezone.utc),
+                last_complete_update=None
+            )
+
+        now = timezone.now()
+        run_all = now.hour < last_update_obj.last_update.hour or last_update_obj.last_complete_update is None
+
+        if now - last_update_obj.last_update > timedelta(minutes=10):
+            main(run_all)
+            last_update_obj.last_update = now
+            if run_all:
+                last_update_obj.last_complete_update = now
+            last_update_obj.save()
+
+        leaderboard = (
+            User.objects
+            .annotate(
+                events_count=Count("usertoevent", distinct=True),
+                total_points=Sum("usertoevent__points")
+            )
+            .order_by("-total_points")
         )
 
-    print("Leaderboard function")
-    now = timezone.now() 
+        leaderboard_list = list(leaderboard)
+        previous_points = None
+        rank = 0
 
-    run_all = now.hour < last_update_obj.last_update.hour or last_update_obj.last_complete_update is None
-    if now - last_update_obj.last_update > timedelta(minutes=10):
-        main(run_all)
-        last_update_obj.last_update = now
-        if run_all:
-            last_update_obj.last_complete_update = now
+        for i, user in enumerate(leaderboard_list, start=1):
+            if user.total_points == previous_points:
+                user.rank = rank
+            else:
+                rank = i
+                user.rank = rank
+                previous_points = user.total_points
 
-        last_update_obj.save()
-
-    leaderboard = (
-        User.objects
-        .annotate(
-            events_count=Count("usertoevent", distinct=True),
-            total_points=Sum("usertoevent__points")
-        )
-        .order_by("-total_points")
-    )
-
-
-    leaderboard_list = list(leaderboard)
-    previous_points = None
-    rank = 0
-
-    for i, user in enumerate(leaderboard_list, start=1):
-        if user.total_points == previous_points:
-            user.rank = rank
-        else:
-            rank = i
-            user.rank = rank
-            previous_points = user.total_points
+        cache.set(CACHE_KEY, leaderboard_list, CACHE_TTL)
+    else:
+        print("Cache hit")
 
     return render(request, "leaderboard.html", {"leaderboard": leaderboard_list})
-
 
 
 def user_detail_view(request, user_id):
