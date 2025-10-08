@@ -1,14 +1,21 @@
+
 body {
     font-family: Arial, sans-serif;
     background: #f4f4f4;
     padding: 0;
     margin: 0;
+    padding-top: 90px;
 }
 
 .menu-container {
     max-width: 800px;
     margin: 0 auto;
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    transition: top 0.3s ease-in-out;
     padding-bottom: 40px;
 }
 
@@ -40,8 +47,6 @@ body {
     z-index: 1;
 }
 
-
-
 .menu-item a {
     text-decoration: none; 
     color: inherit; 
@@ -58,6 +63,8 @@ body {
     background: #002244;
     color: white;
 }
+
+
 
 .container {
     position: relative;
@@ -355,12 +362,14 @@ h1 {
 
 .close {
     position: absolute;
-    top: 10px;
-    right: 15px;
+    top: 4px;
+    right: 6px;
     font-size: 28px;
     cursor: pointer;
     color: #333;
     transition: transform 0.2s;
+    z-index: 9999;
+    border-radius: 6px;
 }
 
 .close:hover {
@@ -374,4 +383,52 @@ h1 {
     display: block;
     margin: 0 auto;
     border-radius: 8px;
+}
+
+
+/* Mobile override */
+@media only screen and (max-width: 768px) {
+    body {
+        background: #002244;
+    }
+
+    .event-card {
+        flex: 0 1 100%;
+        margin-bottom: 20px;
+    }
+
+    h1 {
+        font-size: 1.3em;
+    }
+    .container {
+        max-width: 100% !important;
+        padding: 30px 10px 10px 10px; /* větší prostor nahoře */
+    }
+
+    table {
+        width: 100% !important;
+        font-size: 0.85rem; /* menší písmo pro mobil */
+        /*table-layout: fixed; /* zabrání přetékání textu */
+        word-wrap: break-word;
+    }
+
+    table th,
+    table td {
+        padding: 6px;
+    }
+
+    colgroup col {
+        width: auto !important;
+    }
+    
+    .user-table {
+        table-layout: fixed;
+        word-wrap: break-word;
+    }
+
+    .user-table th,
+    .user-table td {
+        padding: 6px;
+        font-size: 0.85rem;
+    }
 }

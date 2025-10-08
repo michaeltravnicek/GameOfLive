@@ -30,7 +30,7 @@ function loadUser(userId) {
                         <button class="back-button" onclick="loadLeaderboard()">Back</button>
                     </div>
                     <h1 class="center-title">${data.user_name}</h1>
-                    <table>
+                    <table class="user-table">
                         <colgroup>
                             <col style="width: auto;">
                             <col style="width: 25%;">
@@ -175,4 +175,32 @@ document.addEventListener("DOMContentLoaded", function() {
             modal.classList.remove("show");
         }
     });
+});
+
+let lastScrollTop = 0;
+let scrollUpCount = 0;
+let scrollDistanceThreshold = 20;
+let hideThreshold = 50;
+const menu = document.querySelector('.menu-container');
+
+window.addEventListener('scroll', function() {
+    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    let delta = lastScrollTop - scrollTop;
+
+    if (scrollTop < hideThreshold) {
+        menu.style.top = "0";
+        scrollUpCount = 0;
+    } 
+    else if (delta > scrollDistanceThreshold) {
+        scrollUpCount++;
+        if (scrollUpCount >= 3) {
+            menu.style.top = "0";
+        }
+    } 
+    else if (delta < -scrollDistanceThreshold) {
+        menu.style.top = "-100px";
+        scrollUpCount = 0;
+    }
+
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
 });
