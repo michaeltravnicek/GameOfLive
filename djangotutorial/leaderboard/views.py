@@ -1,3 +1,4 @@
+import multiprocessing
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from .models import User, UserToEvent, Event, ImageToEvent, LastUpdate
@@ -37,11 +38,13 @@ def leaderboard_view(request):
         run_all = now.hour < last_update_obj.last_update.hour or last_update_obj.last_complete_update is None
 
         if now - last_update_obj.last_update > timedelta(minutes=10):
-            main(run_all)
+            p = multiprocessing.Process(target=main, args=(run_all,))
+            p.start()
             last_update_obj.last_update = now
             if run_all:
                 last_update_obj.last_complete_update = now
             last_update_obj.save()
+            p.join()
 
         leaderboard = (
             User.objects
