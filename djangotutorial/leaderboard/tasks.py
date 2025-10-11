@@ -3,6 +3,7 @@ from background_task import background
 from datetime import datetime
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+import gc
 
 from leaderboard.models import Event, User, UserToEvent  # import modelů
 from django.core.cache import cache
@@ -146,7 +147,13 @@ def main(run_all: bool):
 
             sheet_list_id = str(sheet_meta["properties"]["sheetId"]) 
             handle_attendance(sheet_id, sheet_list_id, result.get("values", []), run_all)
-        reset_queries()
+            
+            del result
+            reset_queries()
+            gc.collect()
+
+    del service_sheets, sheets, service
+    gc.collect()
 
 
 @background(schedule=60)

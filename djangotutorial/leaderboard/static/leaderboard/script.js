@@ -72,7 +72,6 @@ function loadLeaderboard() {
 document.addEventListener("DOMContentLoaded", function() {
     const modal = document.getElementById("event-modal");
     if (!modal) {
-        console.error("❌ #event-modal nebyl nalezen v DOM!");
         return;
     }
 
