@@ -6,7 +6,7 @@ from googleapiclient.discovery import build
 
 from leaderboard.models import Event, User, UserToEvent  # import modelů
 from django.core.cache import cache
-
+from django.db import reset_queries
 from leaderboard.models import Event, User, UserToEvent
 
 SCOPES = [
@@ -125,17 +125,15 @@ def main(run_all: bool):
         fields="files(id, name)"
     ).execute()
 
-
+    service_sheets = build("sheets", "v4", credentials=creds)
     for sheet_info in sheets.get("files", []):
         sheet_id = sheet_info["id"]
-
-        service_sheets = build("sheets", "v4", credentials=creds)
+    
         spreadsheet = service_sheets.spreadsheets().get(
             spreadsheetId=sheet_id
         ).execute()
 
         #handle_events(sheet_info)
-
         for sheet_meta in spreadsheet.get("sheets", []):
             title = sheet_meta["properties"]["title"]
             print(f"Processing sheet: {title}")
@@ -148,6 +146,7 @@ def main(run_all: bool):
 
             sheet_list_id = str(sheet_meta["properties"]["sheetId"]) 
             handle_attendance(sheet_id, sheet_list_id, result.get("values", []), run_all)
+        reset_queries()
 
 
 @background(schedule=60)
