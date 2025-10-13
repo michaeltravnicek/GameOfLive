@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone as dt_timezone
 from django.db.models import F
 from django.utils import timezone
 from django.conf import settings
+from django.db import connections
 
 def home_view(request):
     print(settings.MEDIA_ROOT)
@@ -38,6 +39,8 @@ def leaderboard_view(request):
         run_all = now.hour < last_update_obj.last_update.hour or last_update_obj.last_complete_update is None
 
         if now - last_update_obj.last_update > timedelta(minutes=10):
+            for conn in connections.all():
+                conn.close()
             p = multiprocessing.Process(target=main, args=(run_all,))
             p.start()
             last_update_obj.last_update = now
