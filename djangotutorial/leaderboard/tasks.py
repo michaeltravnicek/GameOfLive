@@ -39,6 +39,8 @@ def insert_event(sheet_id: str, sheet: dict):
             "date": datetime.now(),
         }
     )
+    if created:
+        print("New event")
     return event
 
 

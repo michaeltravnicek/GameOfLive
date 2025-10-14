@@ -20,7 +20,7 @@ from django.core.cache import cache
 from datetime import timedelta
 
 CACHE_KEY = "leaderboard_data"
-CACHE_TTL = 10 * 60
+CACHE_TTL = 5 * 60
 
 
 def leaderboard_view(request):
@@ -38,7 +38,7 @@ def leaderboard_view(request):
         now = timezone.now()
         run_all = now.hour < last_update_obj.last_update.hour or last_update_obj.last_complete_update is None
 
-        if now - last_update_obj.last_update > timedelta(minutes=10):
+        if now - last_update_obj.last_update > timedelta(minutes=5):
             for conn in connections.all():
                 conn.close()
             p = multiprocessing.Process(target=main, args=(run_all,))
